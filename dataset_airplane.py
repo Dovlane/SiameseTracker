@@ -30,15 +30,17 @@ class IncompatibleImagenetStructure(IncompatibleFolderStructure):
         info = ("\n"
                 "The given root directory does not conform with the expected "
                 "folder structure. It should have the following structure:\n"
-                "Imagenet/\n"
-                "├── Annotations\n"
-                "│   └── VID\n"
-                "│       ├── train\n"
-                "│       └── val\n"
-                "└── Data\n"
-                "    └── VID\n"
-                "        ├── train\n"
-                "        └── val\n")
+                "airplane\n"
+                "├── airplane_1\n"
+                "├       └── img\n"
+                "├       └── grountruth.txt\n"
+                "├── airplane_2\n"
+                "├       └── img\n"
+                "├       └── grountruth.txt\n"
+                "...\n"
+                "├── airplane_20\n"
+                "├       └── img\n"
+                "├       └── grountruth.txt\n")
         if msg is not None:
             info = info + msg
         super().__init__(info)
@@ -87,25 +89,48 @@ class ImageLaSOT(Dataset):
             self.label = None
         self.frames = self.load_frame_paths()
         self.annotations = self.load_annotations()
+        self.set_list_idx()
 
+    def set_list_idx(self):
+        self.list_idx = []
+        rows = len(self.frames)
+        for seq_idx in range(rows):
+            for _ in self.frames[seq_idx]:
+                self.list_idx.append(seq_idx)
 
     def set_root_dirs(self, root):
-        self.dir_data = join(root, 'img')
-        self.dir_annot = join(root, 'groundtruth.txt')
+        self.root = root
+        self.dir_img = []
+        self.groundtruth_paths = []
+        # self.dir_img = join(root, 'img')
+        for i in range(1, 21):  # Checking for airplane_1 to airplane_20
+            airplane_folder = os.path.join(root, f"airplane-{i}")
+            self.dir_img.append(os.path.join(airplane_folder, "img"))
+            groundtruth_path = os.path.join(airplane_folder, "groundtruth.txt")
+            self.groundtruth_paths.append(groundtruth_path)
 
+    def __len__(self):
+        return len(self.frames)
 
     def get_scene_dirs(self): # For now, I interpreted as "get_scene_images"
-        glob_expression = join(self.dir_data, '*', '*')
-        relative_paths = [relpath(p, self.dir_data) for p in sorted(glob.glob(glob_expression))]
-        return relative_paths
+        image_paths = []
+        
+        for i in range(1, 21):  # Checking for airplane_1 to airplane_20
+            airplane_folder = os.path.join(self.root, f"airplane-{i}")
+            img_folder = os.path.join(airplane_folder, "img")
+            if os.path.isdir(img_folder):
+                images = glob.glob(os.path.join(img_folder, '*'))
+                image_paths.append(images)
+                
+        return image_paths
         
 
 
-    def get_pair(self, seq_idx = 1, frame_idx = None):
-        if seq_idx != 1:
+    def get_pair(self, seq_idx, frame_idx = None):
+        if  not (0 <= seq_idx and seq_idx <= 19):
             raise Exception("Sorry I still have only one folder in my database!")
 
-        size = len(get_scene_dirs())
+        size = len(self.frames[seq_idx])
         if frame_idx is None:
             first_frame_idx = random.randint(0, size-2)
         else:
@@ -127,36 +152,27 @@ class ImageLaSOT(Dataset):
         return ref_size
 
 
-    def load_image_tensor(self, image_path):
-        image = Image.open(image_path)
-        transform = transforms.Compose([
-            transforms.ToTensor(),       
-        ])
-        image_tensor = transform(image)
-        return image_tensor
-    
-
     def load_frame_paths(self):
-        # self.frames = [self.load_image_tensor(join(self.dir_data, path)) for path in self.get_scene_dirs()]
         self.frames = [join(self.dir_data, path) for path in self.get_scene_dirs()]
         return self.frames
-    
-
 
 
     def load_annotations(self):
         groundtruth_cols = ["x", "y", "w", "h"]
         annotation_cols = ["x1", "y1", "x2", "y2"]
         groundtruth = 'groundtruth.txt'
-        self.annotations = pd.read_csv(self.dir_annot, sep=',', header=None, names=groundtruth_cols)
-        df = pd.DataFrame(self.annotations)
-        df["x1"] = df["x"]
-        df["y1"] = df["y"]
-        df.drop(columns=["x", "y"], inplace = True)
-        df["x2"] = df["x1"] + df["w"]
-        df["y2"] = df["y1"] + df["h"]
-        df.drop(columns=["w", "h"], inplace = True)
-        return df
+        groundtruth_list = []
+        for i in range(20):
+            self.annotations = pd.read_csv(self.groundtruth_paths[i], sep=',', header=None, names=groundtruth_cols)
+            df = pd.DataFrame(self.annotations)
+            df["x1"] = df["x"]
+            df["y1"] = df["y"]
+            df.drop(columns=["x", "y"], inplace = True)
+            df["x2"] = df["x1"] + df["w"]
+            df["y2"] = df["y1"] + df["h"]
+            df.drop(columns=["w", "h"], inplace = True)
+            groundtruth_list.append(df)
+        return groundtruth_list
 
 
         
@@ -166,11 +182,11 @@ class ImageLaSOT(Dataset):
         return self.frames[idx]
     
 
-    def preprocess_sample(self, first_idx, second_idx): # first_idx, second_idx -> first_frame_idx, second_frame_idx; seq_idx should be added!
-        reference_frame_path = self.frames[first_idx]
-        search_frame_path = self.frames[second_idx]
-        ref_annot = self.annotations.iloc[first_idx]
-        srch_annot = self.annotations.iloc[second_idx]
+    def preprocess_sample(self, seq_idx, first_idx, second_idx): # first_idx, second_idx -> first_frame_idx, second_frame_idx; seq_idx should be added!
+        reference_frame_path = self.frames[seq_idx][first_idx]
+        search_frame_path = self.frames[seq_idx][second_idx]
+        ref_annot = self.annotations[seq_idx].iloc[first_idx]
+        srch_annot = self.annotations[seq_idx].iloc[second_idx]
 
         
         ref_w = (ref_annot['x2'].astype(int) - ref_annot['x1'].astype(int)) / 2
@@ -222,10 +238,16 @@ class ImageLaSOT(Dataset):
         srch_frame = self.transforms(srch_frame)
 
         out_dict = {'ref_frame': ref_frame, 'srch_frame': srch_frame,
-                    'label': label, 'ref_idx': first_idx, #!!! seq_idx was before first_idx
+                    'label': label, 'seq_idx' : seq_idx,'ref_idx': first_idx,
                     'srch_idx': second_idx }
-        #print(out_dict)
-        return out_dict   
+        return out_dict
 
-imageLaSOT = ImageLaSOT('home/airplane/airplane-1/')
-imageLaSOT.preprocess_sample(1, 2)
+    def __getitem__(self, idx):
+        seq_idx = self.list_idx[idx]
+        first_idx, second_idx = self.get_pair(seq_idx)
+        return self.preprocess_sample(seq_idx, first_idx, second_idx)        
+
+
+imageLaSOT = ImageLaSOT('airplane/')
+out_dict = imageLaSOT[600]
+print(out_dict['seq_idx'])
