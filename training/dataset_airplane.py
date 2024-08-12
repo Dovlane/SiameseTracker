@@ -18,7 +18,7 @@ import sys
 import os
 from os.path import join, isdir, isfile, splitext
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from training.crops_train import crop_img , resize_and_pad
+from training.crops_train import crop_and_resize
 from training.labels import create_BCELogit_loss_label as BCELoss
 from torch.utils.data import DataLoader
 
@@ -133,8 +133,8 @@ class ImageLaSOT(Dataset):
                                         upscale_factor=self.upscale_factor)
         else:
             self.label = None
-        self.frames = self.load_frame_paths()
-        self.annotations = self.load_annotations()
+        
+        self.load_annotations_and_frames()
         self.list_pairs = self.build_test_pairs()
         self.self_len = 0
         self.set_list_idx()
@@ -181,23 +181,6 @@ class ImageLaSOT(Dataset):
         return self.self_len
 
 
-    def get_frames(self): 
-
-        image_paths = {}
-        for class_type, dir_img_paths in zip(self.dir_img.keys(), self.dir_img.values()):
-            image_paths[class_type] = []
-            subclasses_count = self.subclasses_counts[class_type]
-            dir_img_paths_len = len(dir_img_paths)
-            for i in self.subclasses_indexes:
-                images = glob.glob(os.path.join(dir_img_paths[i - self.start_subclass_idx], '*'))
-                image_paths[class_type].append(images)
-
-        return image_paths
-        
-    def load_frame_paths(self):
-        self.frames = self.get_frames()
-        return self.frames
-
     def get_pair(self, class_idx, seq_idx, frame_idx = None):
         if (seq_idx + self.start_subclass_idx) not in self.subclasses_indexes:
             raise Exception("Sorry I still have only one folder in my database!")
@@ -225,29 +208,33 @@ class ImageLaSOT(Dataset):
         return ref_size
 
 
-    def load_annotations(self):
+    def load_annotations_and_frames(self):
         groundtruth_cols = ["x", "y", "w", "h"]
         annotation_cols = ["x1", "y1", "x2", "y2"]
         groundtruth = 'groundtruth.txt'
         groundtruth_map = {}
-        for class_type, groundtruth_paths in zip(self.groundtruth_path_map.keys(), self.groundtruth_path_map.values()):
+        image_paths = {}
+        for class_type, groundtruth_paths, dir_img_paths in zip(self.groundtruth_path_map.keys(), self.groundtruth_path_map.values(), self.dir_img.values()):
             groundtruth_map[class_type] = []
-            for groundtruth_path in groundtruth_paths:
-                data = pd.read_csv(groundtruth_path, sep=',', header=None, names=groundtruth_cols)
+            image_paths[class_type] = []
+            for i in self.subclasses_indexes:
+                data = pd.read_csv(groundtruth_paths[i - self.start_subclass_idx], sep=',', header=None, names=groundtruth_cols)
+                images = glob.glob(os.path.join(dir_img_paths[i - self.start_subclass_idx], '*'))
                 df = pd.DataFrame(data)
                 df["x1"] = df["x"]
                 df["y1"] = df["y"]
                 df.drop(columns=["x", "y"], inplace = True)
                 df["x2"] = df["x1"] + df["w"]
                 df["y2"] = df["y1"] + df["h"]
+                invalid_indicies =  df[(df['h'] <= 10) | (df['w'] <= 10)].index
+                df.drop(invalid_indicies)
+                images = [image_path for idx, image_path in enumerate(images) if idx not in invalid_indicies]
                 df.drop(columns=["w", "h"], inplace = True)
                 groundtruth_map[class_type].append(df)
+                image_paths[class_type].append(images)
 
-        return groundtruth_map
-
-
-    def get_frame_at(self, idx): 
-        return self.frames[idx]
+        self.frames = image_paths
+        self.annotations = groundtruth_map
     
 
     def preprocess_sample(self, class_idx, seq_idx, first_idx, second_idx): 
