@@ -19,7 +19,6 @@ import os
 from os.path import join, isdir, isfile, splitext
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from training.crops_train import crop_img , resize_and_pad
-#from training.train_utils import get_annotations, check_folder_tree
 from training.labels import create_BCELogit_loss_label as BCELoss
 
 class IncompatibleFolderStructure(Exception):
