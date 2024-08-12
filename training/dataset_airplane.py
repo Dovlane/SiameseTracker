@@ -20,6 +20,8 @@ from os.path import join, isdir, isfile, splitext
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from training.crops_train import crop_img , resize_and_pad
 from training.labels import create_BCELogit_loss_label as BCELoss
+from torch.utils.data import DataLoader
+
 
 class IncompatibleFolderStructure(Exception):
     pass
@@ -29,51 +31,81 @@ class IncompatibleImagenetStructure(IncompatibleFolderStructure):
         info = ("\n"
                 "The given root directory does not conform with the expected "
                 "folder structure. It should have the following structure:\n"
-                "airplane\n"
-                "├── airplane_1\n"
-                "├       └── img\n"
-                "├       └── grountruth.txt\n"
-                "├── airplane_2\n"
-                "├       └── img\n"
-                "├       └── grountruth.txt\n"
+                "home\n"
+                "├── airplane"
+                "├──── airplane-1\n"
+                "├          └── img\n"
+                "├          └── grountruth.txt\n"
+                "├──── airplane-2\n"
+                "├          └── img\n"
+                "├          └── grountruth.txt\n"
                 "...\n"
-                "├── airplane_20\n"
-                "├       └── img\n"
-                "├       └── grountruth.txt\n")
+                "├──── airplane-20\n"
+                "├          └── img\n"
+                "├          └── grountruth.txt\n"
+                "├── bicycle"
+                "├──── bicycle-1\n"
+                "├          └── img\n"
+                "├          └── grountruth.txt\n"
+                "...\n"
+                "├──── bicycle-20\n"
+                "├          └── img\n"
+                "├          └── grountruth.txt\n")
         if msg is not None:
             info = info + msg
         super().__init__(info)
 
 
 def check_folder_tree(base_path):
-    for i in range(1, 21):  # Checking for airplane_1 to airplane_20
-        airplane_folder = os.path.join(base_path, f"airplane-{i}")
-        img_folder = os.path.join(airplane_folder, "img")
-        groundtruth_file = os.path.join(airplane_folder, "groundtruth.txt")
+    global classes
+    subclasses_counts = {}
+    for parent in classes:
+        parent_path = os.path.join(base_path, parent)
+        if not os.path.isdir(parent_path):
+            print(f"Missing or invalid parent folder: {parent_path}")
+            return None
         
-        if not os.path.isdir(airplane_folder):
-            print(f"Missing or invalid folder: {airplane_folder}")
-            return False
-        if not os.path.isdir(img_folder):
-            print(f"Missing img folder: {img_folder}")
-            return False
-        if not os.path.isfile(groundtruth_file):
-            print(f"Missing groundtruth.txt file: {groundtruth_file}")
-            return False
-    
-    return True
+        subclasses_count = len(os.listdir(parent_path))
+        subclasses_counts[parent] = subclasses_count
+        for i in range(1, subclasses_count + 1):
+            subclass_folder = os.path.join(parent_path, f"{parent}-{i}")
+            img_folder = os.path.join(subclass_folder, "img")
+            groundtruth_file = os.path.join(subclass_folder, "groundtruth.txt")
+            if not os.path.isdir(subclass_folder):
+                print(f"Missing or invalid folder: {parent}\\{parent}-{i}")
+                return None
+            if not os.path.isdir(img_folder):
+                print(f"Missing or invalid folder: {parent}\\{parent}-{i}\\img")
+                return None
+            if not os.path.isfile(groundtruth_file):
+                print(f"Missing or invalid folder: {parent}\\{parent}-{i}\\groundtruth.txt")
+                return None
+    return subclasses_counts
 
+
+classes = ["airplane", "bicycle"]
 
 
 class ImageLaSOT(Dataset):
-    def __init__(self, imagenet_dir, transforms=ToTensor(),
+    def __init__(self, imagenet_dir, 
                  reference_size=127, search_size=255, final_size=33,
                  label_fcn=BCELoss, upscale_factor=4,
                  max_frame_sep=50, pos_thr=25, neg_thr=50,
-                 cxt_margin=0.5, single_label=True, #img_read_fcn=imread,
-                 metadata_file=None, save_metadata=None):
+                 cxt_margin=0.5, single_label=True): 
+        self.subclasses_indexes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+        self.init(imagenet_dir, reference_size, search_size, final_size, label_fcn, upscale_factor, max_frame_sep, pos_thr, neg_thr, cxt_margin, single_label)
+        
 
-        if not check_folder_tree(imagenet_dir):
+    def init(self, imagenet_dir,
+        reference_size=127, search_size=255, final_size=33,
+                 label_fcn=BCELoss, upscale_factor=4,
+                 max_frame_sep=50, pos_thr=25, neg_thr=50,
+                 cxt_margin=0.5, single_label=True):
+        self.start_subclass_idx = self.subclasses_indexes[0]
+        self.classes = classes
+        self.classes_num = len(self.classes)
+        self.subclasses_counts = check_folder_tree(imagenet_dir)
+        if self.subclasses_counts is None:
             raise IncompatibleImagenetStructure
         self.set_root_dirs(imagenet_dir)
         self.max_frame_sep = max_frame_sep
@@ -84,9 +116,17 @@ class ImageLaSOT(Dataset):
         self.final_size = final_size
         self.pos_thr = pos_thr
         self.neg_thr = neg_thr
-        self.transforms = transforms
         self.label_fcn = label_fcn
-        self.label_fcn = label_fcn
+        self.transform1 = transforms.Compose([ 
+            transforms.Resize(( 127, 127)),        
+            transforms.ToTensor(),                   
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  
+        ])
+        self.transform2 = transforms.Compose([ 
+            transforms.Resize(( 255, 255)),        
+            transforms.ToTensor(),                  
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) 
+        ])
         if single_label:
             self.label = self.label_fcn(self.final_size, self.pos_thr,
                                         self.neg_thr,
@@ -95,67 +135,92 @@ class ImageLaSOT(Dataset):
             self.label = None
         self.frames = self.load_frame_paths()
         self.annotations = self.load_annotations()
+        self.list_pairs = self.build_test_pairs()
+        self.self_len = 0
         self.set_list_idx()
 
+
     def set_list_idx(self):
-        self.list_idx = []
-        rows = len(self.frames)
-        for seq_idx in range(rows):
-            for _ in self.frames[seq_idx]:
-                self.list_idx.append(seq_idx)
+        self.list_idx = {}
+        for class_type, large_dir_img_paths in zip(self.frames.keys(), self.frames.values()): 
+            self.list_idx[class_type] = []
+            i = 0
+            for dir_img_paths in large_dir_img_paths:
+                for dir_img_path in dir_img_paths:
+                    self.list_idx[class_type].append(i)
+                self.self_len += len(dir_img_paths)
+                i += 1 
 
     def set_root_dirs(self, root):
         self.root = root
-        self.dir_img = []
-        self.groundtruth_paths = []
-        # self.dir_img = join(root, 'img')
-        for i in range(1, 21):  # Checking for airplane_1 to airplane_20
-            airplane_folder = os.path.join(root, f"airplane-{i}")
-            self.dir_img.append(os.path.join(airplane_folder, "img"))
-            groundtruth_path = os.path.join(airplane_folder, "groundtruth.txt")
-            self.groundtruth_paths.append(groundtruth_path)
+        self.dir_img = {}
+        self.groundtruth_path_map = {}
+        for class_type, subclasses_count in zip(self.subclasses_counts.keys(), self.subclasses_counts.values()):
+            self.dir_img[class_type] = []
+            self.groundtruth_path_map[class_type] = []
+            for i in self.subclasses_indexes:
+                subclass_folder = os.path.join(root, class_type, f"{class_type}-{i}")
+                self.dir_img[class_type].append(os.path.join(subclass_folder, "img"))
+                groundtruth_path = os.path.join(subclass_folder, "groundtruth.txt")
+                self.groundtruth_path_map[class_type].append(groundtruth_path)
+
+    def build_test_pairs(self):
+        random.seed(100)
+        list_pairs = []
+
+        for class_idx, class_name in enumerate(self.frames):  
+            for seq_idx, frame_seq in enumerate(self.frames[class_name]):
+                for frame_idx, frame in enumerate(frame_seq):
+                    list_pairs.append([class_idx, seq_idx, *self.get_pair(class_idx, seq_idx, frame_idx)])
+        random.shuffle(list_pairs)
+        random.seed()
+        return list_pairs
+
 
     def __len__(self):
-        return len(self.frames)
+        return self.self_len
 
-    def get_scene_dirs(self): # For now, I interpreted as "get_scene_images"
-        image_paths = []
-        
-        for i in range(1, 21):  # Checking for airplane_1 to airplane_20
-            airplane_folder = os.path.join(self.root, f"airplane-{i}")
-            img_folder = os.path.join(airplane_folder, "img")
-            if os.path.isdir(img_folder):
-                images = glob.glob(os.path.join(img_folder, '*'))
-                image_paths.append(images)
-                
+
+    def get_frames(self): 
+
+        image_paths = {}
+        for class_type, dir_img_paths in zip(self.dir_img.keys(), self.dir_img.values()):
+            image_paths[class_type] = []
+            subclasses_count = self.subclasses_counts[class_type]
+            dir_img_paths_len = len(dir_img_paths)
+            for i in self.subclasses_indexes:
+                images = glob.glob(os.path.join(dir_img_paths[i - self.start_subclass_idx], '*'))
+                image_paths[class_type].append(images)
+
         return image_paths
         
     def load_frame_paths(self):
-        self.frames = self.get_scene_dirs()
+        self.frames = self.get_frames()
         return self.frames
 
-    def get_pair(self, seq_idx, frame_idx = None):
-        if  not (0 <= seq_idx and seq_idx <= 19):
+    def get_pair(self, class_idx, seq_idx, frame_idx = None):
+        if (seq_idx + self.start_subclass_idx) not in self.subclasses_indexes:
             raise Exception("Sorry I still have only one folder in my database!")
 
-        size = len(self.frames[seq_idx])
+        class_name = self.classes[class_idx]
+        size = len(self.frames[class_name][seq_idx])
+        pad = 20
+        max_allowed_frame = max(1, size - self.max_frame_sep - pad)
         if frame_idx is None:
-            first_frame_idx = random.randint(0, size-2)
+            first_frame_idx = random.randint(0, max_allowed_frame)
         else:
-            first_frame_idx = frame_idx
-
-        min_frame_idx = max(0, (first_frame_idx - self.max_frame_sep))
-        max_frame_idx = min(size - 1, (first_frame_idx + self.max_frame_sep))
+            first_frame_idx = min(frame_idx, max_allowed_frame)
         
+        min_frame_idx = max(0, (first_frame_idx - self.max_frame_sep))
+        max_frame_idx = min(max(1, size - pad), (first_frame_idx + self.max_frame_sep))
         second_frame_idx = random.randint(min_frame_idx, max_frame_idx)
 
         return first_frame_idx, second_frame_idx
         
 
-    def ref_context_size(self, h, w): # extended box for target when target
+    def ref_context_size(self, h, w):
         margin_size = self.cxt_margin*(w + h)
         ref_size = sqrt((w + margin_size) * (h + margin_size))
-        # make sur ref_size is an odd number
         ref_size = (int(ref_size)//2)*2 + 1
         return ref_size
 
@@ -164,95 +229,97 @@ class ImageLaSOT(Dataset):
         groundtruth_cols = ["x", "y", "w", "h"]
         annotation_cols = ["x1", "y1", "x2", "y2"]
         groundtruth = 'groundtruth.txt'
-        groundtruth_list = []
-        for i in range(20):
-            self.annotations = pd.read_csv(self.groundtruth_paths[i], sep=',', header=None, names=groundtruth_cols)
-            df = pd.DataFrame(self.annotations)
-            df["x1"] = df["x"]
-            df["y1"] = df["y"]
-            df.drop(columns=["x", "y"], inplace = True)
-            df["x2"] = df["x1"] + df["w"]
-            df["y2"] = df["y1"] + df["h"]
-            df.drop(columns=["w", "h"], inplace = True)
-            groundtruth_list.append(df)
-        return groundtruth_list
+        groundtruth_map = {}
+        for class_type, groundtruth_paths in zip(self.groundtruth_path_map.keys(), self.groundtruth_path_map.values()):
+            groundtruth_map[class_type] = []
+            for groundtruth_path in groundtruth_paths:
+                data = pd.read_csv(groundtruth_path, sep=',', header=None, names=groundtruth_cols)
+                df = pd.DataFrame(data)
+                df["x1"] = df["x"]
+                df["y1"] = df["y"]
+                df.drop(columns=["x", "y"], inplace = True)
+                df["x2"] = df["x1"] + df["w"]
+                df["y2"] = df["y1"] + df["h"]
+                df.drop(columns=["w", "h"], inplace = True)
+                groundtruth_map[class_type].append(df)
+
+        return groundtruth_map
 
 
-        
-
-
-    def get_frame_at(self, idx): # idx -> frame_idx; seq_idx should be added!
+    def get_frame_at(self, idx): 
         return self.frames[idx]
     
 
-    def preprocess_sample(self, seq_idx, first_idx, second_idx): # first_idx, second_idx -> first_frame_idx, second_frame_idx; seq_idx should be added!
-        reference_frame_path = self.frames[seq_idx][first_idx]
-        search_frame_path = self.frames[seq_idx][second_idx]
-        ref_annot = self.annotations[seq_idx].iloc[first_idx]
-        srch_annot = self.annotations[seq_idx].iloc[second_idx]
-
-        
-        ref_w = (ref_annot['x2'].astype(int) - ref_annot['x1'].astype(int)) / 2
-        ref_h = (ref_annot['y2'].astype(int) - ref_annot['y1'].astype(int)) / 2
-        ref_ctx_size = self.ref_context_size(int(ref_h), int(ref_w))
-        ref_cx = (ref_annot['x2'].astype(int) + ref_annot['x1'].astype(int)) / 2
-        ref_cy = (ref_annot['y2'].astype(int) + ref_annot['y1'].astype(int)) / 2
-
-        # ref_frame = self.img_read(reference_frame_path)
-        ref_frame = Image.open(reference_frame_path)
-        ref_frame = np.float32(ref_frame)
-
-        ref_frame, pad_amounts_ref = crop_img(ref_frame, ref_cy, ref_cx, ref_ctx_size)
-        
-                                       #resize_fcn=self.resize_fcn)
+    def preprocess_sample(self, class_idx, seq_idx, first_idx, second_idx): 
+        class_name = self.classes[class_idx]
+        reference_frame_path = self.frames[class_name][seq_idx][first_idx]
+        search_frame_path = self.frames[class_name][seq_idx][second_idx]
         try:
-            ref_frame = resize_and_pad(ref_frame, self.reference_size, pad_amounts_ref,
-                                       reg_s=ref_ctx_size, use_avg=True)
-                                       #resize_fcn=self.resize_fcn)
-        except AssertionError:
-            print('Fail Ref: ', reference_frame_path)
-            raise
+            ref_annot = self.annotations[class_name][seq_idx].iloc[first_idx]
+        except IndexError as e:
+            print('len(self.frames[class_name][seq_idx]) =', len(self.frames[class_name][seq_idx]))
+            print('first_idx =', first_idx)
+            print('seq_idx =', seq_idx)
+            print('class_idx =', class_idx)
+            print(f"IndexError caught: {e}")
+        
+        srch_annot = self.annotations[class_name][seq_idx].iloc[second_idx]
+
+        ref_x1, ref_x2 = ref_annot['x1'].astype(int), ref_annot['x2'].astype(int)
+        ref_y1, ref_y2 = ref_annot['y1'].astype(int), ref_annot['y2'].astype(int)
+        ref_w = (ref_x2 - ref_x1) / 2
+        ref_h = (ref_y2 - ref_y1) / 2
+        ref_ctx_size = self.ref_context_size(int(ref_h), int(ref_w))
+        ref_cx = (ref_x2 + ref_x1) / 2
+        ref_cy = (ref_y2 + ref_y1) / 2
+
+        ref_frame = Image.open(reference_frame_path)
+        ref_frame = ref_frame.crop((ref_x1, ref_y1, ref_x2, ref_y2))
+        ref_frame_tensor = self.transform1(ref_frame)
 
         srch_ctx_size = ref_ctx_size * self.search_size / self.reference_size
         srch_ctx_size = (srch_ctx_size//2)*2 + 1
 
-        srch_cx = (srch_annot['x2'].astype(int) + srch_annot['x1'].astype(int))/2
-        srch_cy = (srch_annot['y2'].astype(int) + srch_annot['y1'].astype(int))/2
-
+        srch_x1, srch_x2 = srch_annot['x1'].astype(int), srch_annot['x2'].astype(int)
+        srch_y1, srch_y2 = srch_annot['y1'].astype(int), srch_annot['y2'].astype(int)
+        srch_cx = (srch_x2 + srch_x1)/2
+        srch_cy = (srch_y2 + srch_y1)/2
 
         srch_frame = Image.open(search_frame_path)
-        srch_frame = np.float32(srch_frame)
-        srch_frame, pad_amounts_srch = crop_img(srch_frame, srch_cy, srch_cx, srch_ctx_size)
-        try:
-            srch_frame = resize_and_pad(srch_frame, self.search_size, pad_amounts_srch,
-                                        reg_s=srch_ctx_size, use_avg=True)
-                                        #resize_fcn=self.resize_fcn)
-        except AssertionError:
-            print('Fail Search: ', search_frame_path)
-            raise
+        width, height = srch_frame.size
+        srch_frame = srch_frame.crop((srch_x1, srch_y1, srch_x2 ,srch_y2))
+        width_cropped, height_cropped = srch_frame.size
+        srch_frame_tensor = self.transform2(srch_frame)
 
         if self.label is not None:
             label = self.label
         else:
             label = self.label_fcn(self.final_size, self.pos_thr, self.neg_thr,
                                    upscale_factor=self.upscale_factor)
-        
-        ref_frame = self.transforms(ref_frame)
-        srch_frame = self.transforms(srch_frame)
 
-        out_dict = {'ref_frame': ref_frame, 'srch_frame': srch_frame,
-                    'label': label, 'seq_idx' : seq_idx,'ref_idx': first_idx,
-                    'srch_idx': second_idx }
-        return out_dict
+        out_dict = {'ref_frame': ref_frame_tensor, 'srch_frame': srch_frame_tensor,
+                    'label': label, 'class_idx' : class_idx, 'seq_idx' : seq_idx, 
+                    'ref_idx': first_idx, 'srch_idx': second_idx}
+        return out_dict     
 
     def __getitem__(self, idx):
-        seq_idx = self.list_idx[idx]
-        first_idx, second_idx = self.get_pair(seq_idx)
-        return self.preprocess_sample(seq_idx, first_idx, second_idx)        
+        item = self.preprocess_sample(*self.list_pairs[idx])
+        return item
 
 
-imageLaSOT = ImageLaSOT('data/airplane/')
+imageLaSOT = ImageLaSOT('data/')
+
 out_dict = imageLaSOT[600]
-print(out_dict['seq_idx'])
-print(out_dict['ref_frame'].shape)
-print(out_dict['srch_frame'].shape)
+print('len(imageLaSOT)', len(imageLaSOT))
+print('out_dict[class_idx]', out_dict['class_idx'])
+print('out_dict[seq_idx]', out_dict['seq_idx'])
+print('out_dict[ref_idx]', out_dict['ref_idx'])
+print('out_dict[srch_idx]', out_dict['srch_idx'])
+
+train_dataloader = DataLoader(imageLaSOT, batch_size=8, shuffle = True)
+for i, data in enumerate(train_dataloader):
+    ref_frame_tensor, srch_frame_tensor, label = data['ref_frame'], data['srch_frame'], data['label']
+    print(ref_frame_tensor.shape)
+    print(srch_frame_tensor.shape)
+    print(label.shape)
+    break
