@@ -86,7 +86,7 @@ def check_folder_tree(base_path):
 classes = ["airplane", "bicycle"]
 
 
-class ImageLaSOT(Dataset):
+class ImageLASOT_train(Dataset):
     def __init__(self, imagenet_dir, 
                  reference_size=127, search_size=255, final_size=33,
                  label_fcn=BCELoss, upscale_factor=4,
@@ -294,16 +294,53 @@ class ImageLaSOT(Dataset):
         return item
 
 
-imageLaSOT = ImageLaSOT('data/')
 
-out_dict = imageLaSOT[600]
-print('len(imageLaSOT)', len(imageLaSOT))
+class ImageLASOT_val(ImageLASOT_train):
+    def __init__(self, *args, **kwargs):
+        self.subclasses_indexes = [16, 17, 18]
+        super().init(*args)
+
+    def set_root_dirs(self, root):
+        super().set_root_dirs(root)
+
+    def get_frames(self):
+        return super().get_frames()
+
+    def build_test_pairs(self):
+        return super().build_test_pairs()
+
+    def __getitem__(self, idx):
+        return super().__getitem__(idx)
+
+
+class ImageLASOT_test(ImageLASOT_train):
+    def __init__(self, *args, **kwargs):
+        self.subclasses_indexes = [19, 20]
+        super().init(*args)
+
+    def set_root_dirs(self, root):
+        super().set_root_dirs(root)
+
+    def get_frames(self):
+        return super().get_frames()
+
+    def build_test_pairs(self):
+        return super().build_test_pairs()
+
+    def __getitem__(self, idx):
+        return super().__getitem__(idx)
+
+
+imageLASOT = ImageLASOT_val('data/')
+
+out_dict = imageLASOT[600]
+print('len(imageLASOT)', len(imageLASOT))
 print('out_dict[class_idx]', out_dict['class_idx'])
 print('out_dict[seq_idx]', out_dict['seq_idx'])
 print('out_dict[ref_idx]', out_dict['ref_idx'])
 print('out_dict[srch_idx]', out_dict['srch_idx'])
 
-train_dataloader = DataLoader(imageLaSOT, batch_size=8, shuffle = True)
+train_dataloader = DataLoader(imageLASOT, batch_size=8, shuffle = True)
 for i, data in enumerate(train_dataloader):
     ref_frame_tensor, srch_frame_tensor, label = data['ref_frame'], data['srch_frame'], data['label']
     print(ref_frame_tensor.shape)
