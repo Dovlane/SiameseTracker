@@ -18,7 +18,7 @@ import sys
 import os
 from os.path import join, isdir, isfile, splitext
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from training.crops_train import crop_and_resize
+from training.crops_train import crop_and_resize as crop_and_resize
 from training.labels import create_BCELogit_loss_label as BCELoss
 from torch.utils.data import DataLoader
 
@@ -117,16 +117,6 @@ class ImageLASOT_train(Dataset):
         self.pos_thr = pos_thr
         self.neg_thr = neg_thr
         self.label_fcn = label_fcn
-        self.transform1 = transforms.Compose([ 
-            transforms.Resize(( 127, 127)),        
-            transforms.ToTensor(),                   
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  
-        ])
-        self.transform2 = transforms.Compose([ 
-            transforms.Resize(( 255, 255)),        
-            transforms.ToTensor(),                  
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) 
-        ])
         if single_label:
             self.label = self.label_fcn(self.final_size, self.pos_thr,
                                         self.neg_thr,
@@ -254,29 +244,17 @@ class ImageLASOT_train(Dataset):
 
         ref_x1, ref_x2 = ref_annot['x1'].astype(int), ref_annot['x2'].astype(int)
         ref_y1, ref_y2 = ref_annot['y1'].astype(int), ref_annot['y2'].astype(int)
-        ref_w = (ref_x2 - ref_x1) / 2
-        ref_h = (ref_y2 - ref_y1) / 2
-        ref_ctx_size = self.ref_context_size(int(ref_h), int(ref_w))
-        ref_cx = (ref_x2 + ref_x1) / 2
-        ref_cy = (ref_y2 + ref_y1) / 2
+        ref_w = ref_x2 - ref_x1
+        ref_h = ref_y2 - ref_y1
 
-        ref_frame = Image.open(reference_frame_path)
-        ref_frame = ref_frame.crop((ref_x1, ref_y1, ref_x2, ref_y2))
-        ref_frame_tensor = self.transform1(ref_frame)
-
-        srch_ctx_size = ref_ctx_size * self.search_size / self.reference_size
-        srch_ctx_size = (srch_ctx_size//2)*2 + 1
+        ref_frame = crop_and_resize(reference_frame_path, ref_x1, ref_y1, ref_w, ref_h, 127)
 
         srch_x1, srch_x2 = srch_annot['x1'].astype(int), srch_annot['x2'].astype(int)
         srch_y1, srch_y2 = srch_annot['y1'].astype(int), srch_annot['y2'].astype(int)
-        srch_cx = (srch_x2 + srch_x1)/2
-        srch_cy = (srch_y2 + srch_y1)/2
+        srch_w = srch_x2 - srch_x1
+        srch_h = srch_y2 - srch_y1
 
-        srch_frame = Image.open(search_frame_path)
-        width, height = srch_frame.size
-        srch_frame = srch_frame.crop((srch_x1, srch_y1, srch_x2 ,srch_y2))
-        width_cropped, height_cropped = srch_frame.size
-        srch_frame_tensor = self.transform2(srch_frame)
+        srch_frame = crop_and_resize(search_frame_path, srch_x1, srch_y1, srch_w, srch_h, 255)
 
         if self.label is not None:
             label = self.label
@@ -284,7 +262,7 @@ class ImageLASOT_train(Dataset):
             label = self.label_fcn(self.final_size, self.pos_thr, self.neg_thr,
                                    upscale_factor=self.upscale_factor)
 
-        out_dict = {'ref_frame': ref_frame_tensor, 'srch_frame': srch_frame_tensor,
+        out_dict = {'ref_frame': ref_frame, 'srch_frame': srch_frame,
                     'label': label, 'class_idx' : class_idx, 'seq_idx' : seq_idx, 
                     'ref_idx': first_idx, 'srch_idx': second_idx}
         return out_dict     
@@ -340,10 +318,12 @@ print('out_dict[seq_idx]', out_dict['seq_idx'])
 print('out_dict[ref_idx]', out_dict['ref_idx'])
 print('out_dict[srch_idx]', out_dict['srch_idx'])
 
+
 train_dataloader = DataLoader(imageLASOT, batch_size=8, shuffle = True)
 for i, data in enumerate(train_dataloader):
     ref_frame_tensor, srch_frame_tensor, label = data['ref_frame'], data['srch_frame'], data['label']
     print(ref_frame_tensor.shape)
     print(srch_frame_tensor.shape)
     print(label.shape)
-    break
+    if i == 100:
+        break
