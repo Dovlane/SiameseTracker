@@ -45,16 +45,23 @@ class IncompatibleImagenetStructure(IncompatibleFolderStructure):
         super().__init__(info)
 
 
-def check_folder_tree(root_dir):
-    """ Checks if the folder structure is compatible with the expected one.
-    Args:
-        root_dir: (str) The path to the root directory of the dataset
-
-    Return:
-        bool: True if the structure is compatible, False otherwise.
-    """
-    necessary_folders = [root_dir, root_dir + 'img']
-    return all([isdir(folder) for folder in necessary_folders])
+def check_folder_tree(base_path):
+    for i in range(1, 21):  # Checking for airplane_1 to airplane_20
+        airplane_folder = os.path.join(base_path, f"airplane-{i}")
+        img_folder = os.path.join(airplane_folder, "img")
+        groundtruth_file = os.path.join(airplane_folder, "groundtruth.txt")
+        
+        if not os.path.isdir(airplane_folder):
+            print(f"Missing or invalid folder: {airplane_folder}")
+            return False
+        if not os.path.isdir(img_folder):
+            print(f"Missing img folder: {img_folder}")
+            return False
+        if not os.path.isfile(groundtruth_file):
+            print(f"Missing groundtruth.txt file: {groundtruth_file}")
+            return False
+    
+    return True
 
 
 
@@ -123,7 +130,9 @@ class ImageLaSOT(Dataset):
                 
         return image_paths
         
-
+    def load_frame_paths(self):
+        self.frames = self.get_scene_dirs()
+        return self.frames
 
     def get_pair(self, seq_idx, frame_idx = None):
         if  not (0 <= seq_idx and seq_idx <= 19):
@@ -149,11 +158,6 @@ class ImageLaSOT(Dataset):
         # make sur ref_size is an odd number
         ref_size = (int(ref_size)//2)*2 + 1
         return ref_size
-
-
-    def load_frame_paths(self):
-        self.frames = [join(self.dir_data, path) for path in self.get_scene_dirs()]
-        return self.frames
 
 
     def load_annotations(self):
@@ -247,6 +251,8 @@ class ImageLaSOT(Dataset):
         return self.preprocess_sample(seq_idx, first_idx, second_idx)        
 
 
-imageLaSOT = ImageLaSOT('airplane/')
+imageLaSOT = ImageLaSOT('data/airplane/')
 out_dict = imageLaSOT[600]
 print(out_dict['seq_idx'])
+print(out_dict['ref_frame'].shape)
+print(out_dict['srch_frame'].shape)
