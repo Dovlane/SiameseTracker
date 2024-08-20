@@ -37,7 +37,7 @@ In this section you should describe your project, including any datasets you use
 You can include tables or images to summarize your results when and if appropriate.
 
 <!-- Project Structure -->
-## <span id="introduction"> Project Structure </span>
+## <span id="project-structure"> Project Structure </span>
 
 In this section you should provide instructions on how to use this repository to recreate your project locally.
 
