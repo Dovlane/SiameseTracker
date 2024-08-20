@@ -20,14 +20,15 @@
     <li><a href="#results">Results</a></li>
     <li><a href="#challenges-and-future-work">Challenges and Future Work</a></li>
     <li><a href="references">References</a></li>
+    <li><a href="#authors">Authors</a></li>
     <li><a href="#acknowledgements">Acknowledgements</a></li>
   </ol>
 </details>
 
 
 
-<!-- ABOUT THE PROJECT -->
-## Introduction
+<!-- Introduction -->
+## <span id="introduction"> Introduction </span>
 
 In this section you should describe your project, including any datasets you used and appropriate citations. You may refer to your project report or cite your paper for more detailed information.
 
@@ -35,80 +36,30 @@ In this section you should describe your project, including any datasets you use
 
 You can include tables or images to summarize your results when and if appropriate.
 
-<!-- GETTING STARTED -->
-## Getting Started
+<!-- Project Structure -->
+## <span id="introduction"> Project Structure </span>
 
 In this section you should provide instructions on how to use this repository to recreate your project locally.
 
-### Dependencies
+<!-- Model arch -->
+## <span id="model-architecture"> Model architecture </span>
 
-Here, list all libraries, packages and other dependencies that need to be installed to run your project. Include library versions and how they should be installed if a special requirement is needed.
+In this section you should provide instructions on how to use this repository to recreate your project locally.
 
-For example, this is how you would list them:
-* Transformers 4.8.0
-  ```sh
-  conda install -c conda-forge transformers
-  ```
-* OpenCV 4.5.2
-  ```sh
-  conda install -c conda-forge opencv
-  ```
-### Alternative: Export your Environment
+<!-- Project Structure -->
+## <span id="results"> Results </span>
 
-Alternatively, you can export your Python working environment, push it to your project's repository and allow users to clone it locally. This way, anyone can install it and they will have all dependencies needed. Here is how you export a copy of your Python environment:
+In this section you should provide instructions on how to use this repository to recreate your project locally.
 
-  ```sh
-  conda env export > requirements.yml
-  ```
+<!-- Project Structure -->
+## <span id="challenges-and-future-work"> Challenges and future work </span>
 
-The user will be able to recreate it using:
+In this section you should provide instructions on how to use this repository to recreate your project locally.
 
-  ```sh
-  conda env create -f requirements.yml
-  ```
+<!-- Project Structure -->
+## <span id="references"> References </span>
 
-### Installation
-
-1. Clone the repo
-   ```sh
-   git clone https://github.com/catiaspsilva/README-template.git
-   ```
-2. Setup (and activate) your environment
-  ```sh
-  conda env create -f requirements.yml
-  ```
-
-<!-- USAGE EXAMPLES -->
-## Usage
-
-Use this space to show useful examples of how a project can be used. For course projects, include which file to execute and the format of any input variables.
-
-Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
-
-<!-- ROADMAP -->
-## Roadmap
-
-See the [open issues](https://github.com/catiaspsilva/README-template/issues) for a list of proposed features (and known issues).
-
-<!-- CONTRIBUTING -->
-## Contributing
-
-Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-
-<!-- LICENSE -->
-## License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
+In this section you should provide instructions on how to use this repository to recreate your project locally.
 
 <!-- Authors -->
 ## Authors
@@ -131,6 +82,4 @@ You can acknowledge any individual, group, institution or service.
 * [Loaders.css](https://connoratherton.com/loaders)
 * [Slick Carousel](https://kenwheeler.github.io/slick)
 
-## Thank you
 
-<!-- If this is useful: [![Buy me a coffee](https://www.buymeacoffee.com/assets/img/guidelines/download-assets-sm-1.svg)](https://www.buymeacoffee.com/catiaspsilva) -->
