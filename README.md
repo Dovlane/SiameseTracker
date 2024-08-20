@@ -14,12 +14,12 @@
 <details open="open">
   <summary>Table of contents</summary>
   <ol>
-    <li><a href="introduction">Introduction</a></li>
+    <li><a href="#introduction">Introduction</a></li>
     <li><a href="#project-structure">Project Structure</a></li>
     <li><a href="#model-architecture">Model architecture</a></li>
     <li><a href="#results">Results</a></li>
     <li><a href="#challenges-and-future-work">Challenges and Future Work</a></li>
-    <li><a href="references">References</a></li>
+    <li><a href="#references">References</a></li>
     <li><a href="#authors">Authors</a></li>
     <li><a href="#acknowledgements">Acknowledgements</a></li>
   </ol>
