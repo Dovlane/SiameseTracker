@@ -2,7 +2,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/catiaspsilva/README-template">
-    <img src="siamese-cat-isolated-on-transparent-background-ai-generated-png.png" alt="Logo" width="150" height="150">
+    <img src="images/siamese-cat-isolated-on-transparent-background-ai-generated-png.png" alt="Logo" width="150" height="150">
   </a>
 
   <h3 align="center">Object tracking with Siamese networks</h3>
