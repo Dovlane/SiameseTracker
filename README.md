@@ -30,7 +30,7 @@
 <!-- Introduction -->
 ## <span id="introduction"> Introduction </span>
 
-In this section you should describe your project, including any datasets you used and appropriate citations. You may refer to your project report or cite your paper for more detailed information.
+This project was developed as part of the Practical Seminar in Machine Learning (PSI:ML) 10. It implements single object tracking using Siamese networks, focusing on the challenge of accurately tracking a specified target throughout a video. The target is identified in the first frame and must be consistently detected and followed in all subsequent frames.
 
 [Here goes the title with hyperlink](https://github.com/catiaspsilva/README-template)
 
