@@ -2,57 +2,32 @@
 <br />
 <p align="center">
   <a href="https://github.com/catiaspsilva/README-template">
-    <img src="images/file (7).png" alt="Logo" width="150" height="150">
+    <img src="siamese-cat-isolated-on-transparent-background-ai-generated-png.png" alt="Logo" width="150" height="150">
   </a>
 
   <h3 align="center">Object tracking with Siamese networks</h3>
 
- <!--> <p align="center">
-    A README template to jumpstart your projects!
-    <br />
-    <a href="https://github.com/catiaspsilva/README-template/blob/main/images/docs.txt"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="#usage">View Demo</a>
-    ·
-    <a href="https://github.com/catiaspsilva/README-template/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/catiaspsilva/README-template/issues">Request Feature</a>
-  </p>
-</p>-->
 
 
 
 <!-- TABLE OF CONTENTS -->
 <details open="open">
-  <summary>Introduction</summary>
+  <summary>Table of contents</summary>
   <ol>
-    <li>
-      <a href="#project-structure">Project Structure</a>
-     <!-- <ul>
-        <li><a href="#built-with">Dataset</a></li>
-      </ul>-->
-    </li>
-    <li>
-      <a href="#getting-started">Model architecture</a>
-      <ul>
-        <li><a href="#dependencies">Results</a></li>
-        <li><a href="#installation">Challenges and Future Work</a></li>
-      </ul>
-    </li>
-    <li><a href="#usage">References</a></li>
-    <li><a href="#roadmap">Acknowledgements</a></li>
-    <!--<li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#authors">Authors</a></li>
-    <li><a href="#acknowledgements">Acknowledgements</a></li>-->
+    <li><a href="introduction">Introduction</a></li>
+    <li><a href="#project-structure">Project Structure</a></li>
+    <li><a href="#model-architecture">Model architecture</a></li>
+    <li><a href="#results">Results</a></li>
+    <li><a href="#challenges-and-future-work">Challenges and Future Work</a></li>
+    <li><a href="references">References</a></li>
+    <li><a href="#acknowledgements">Acknowledgements</a></li>
   </ol>
 </details>
 
 
 
 <!-- ABOUT THE PROJECT -->
-## Project Structure
+## Introduction
 
 In this section you should describe your project, including any datasets you used and appropriate citations. You may refer to your project report or cite your paper for more detailed information.
 
