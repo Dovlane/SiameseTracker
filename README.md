@@ -32,14 +32,10 @@
 
 This project was developed as part of the Practical Seminar in Machine Learning (PSI:ML) 10. It implements single object tracking using Siamese networks, focusing on the challenge of accurately tracking a specified target throughout a video. The target is identified in the first frame and must be consistently detected and followed in all subsequent frames.
 
-[Here goes the title with hyperlink](https://github.com/catiaspsilva/README-template)
-
-You can include tables or images to summarize your results when and if appropriate.
-
 <!-- Project Structure -->
 ## <span id="project-structure"> Project Structure </span>
 
-In this section you should provide instructions on how to use this repository to recreate your project locally.
+
 
 <!-- Model arch -->
 ## <span id="model-architecture"> Model architecture </span>
