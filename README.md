@@ -34,8 +34,12 @@ This project was developed as part of the Practical Seminar in Machine Learning 
 
 <!-- Project Structure -->
 ## <span id="project-structure"> Project Structure </span>
-
-
+Project structure is as follows:
+<ul>
+  <li>data - LaSOT images (in our case only bicycle and airplane classes of images)</li>
+  <li>training - with all .py files that are already in it</li>
+</ul>
+Download LaSOT dataset from <a href="https://onedrive.live.com/?authkey=%21AKDCa351cL3g44Q&id=83EEFE32EECC7F4B%2133234&cid=83EEFE32EECC7F4B">LaSOT</a>. In the code training and test set are seperated via different classes ImageLASOT_train, ImageLASOT_val, ImageLASOT_test. The main difference between these classes is in the value of the attribute <i>subclasses_indexes</i>. Each class of images has 20 subclasses, and you can play around with this to determine how much parameters are going to be for training, validation and test sets.
 
 <!-- Model arch -->
 ## <span id="model-architecture"> Model architecture </span>
@@ -60,9 +64,14 @@ In this section you should provide instructions on how to use this repository to
 <!-- Authors -->
 ## Authors
 
-Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com
-
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
+<ul>
+  <li>
+    <a href="https://github.com/0elena0">Elena Nešović </a>
+  </li>
+  <li>
+    <a href="https://github.com/Dovlane">Vladimir Ignjatijević</a>
+  </li>
+</ul>
 
 
 <!-- ACKNOWLEDGEMENTS -->
