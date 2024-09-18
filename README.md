@@ -77,14 +77,12 @@ In this section you should provide instructions on how to use this repository to
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
 
-You can acknowledge any individual, group, institution or service.
-* [Catia Silva](https://faculty.eng.ufl.edu/catia-silva/)
-* [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
-* [Img Shields](https://shields.io)
-* [Choose an Open Source License](https://choosealicense.com)
-* [GitHub Pages](https://pages.github.com)
-* [Animate.css](https://daneden.github.io/animate.css)
-* [Loaders.css](https://connoratherton.com/loaders)
-* [Slick Carousel](https://kenwheeler.github.io/slick)
+It was an honor to be part of the PSIML 10 seminar! We are especially grateful for the help of our mentors:
+<ul>
+  <li><a href="https://www.linkedin.com/in/vukasinrankovic/">Vukašin Ranković</a></li>
+  <li><a href="https://www.linkedin.com/in/stefan-stepanovic/">Stefan Stepanović</a></li>
+  <li><a href="https://www.linkedin.com/in/stefan-mojsilovic/">Stefan Mojsilović</a></li>
+</ul>
+and the significant contributor <a href="https://www.linkedin.com/in/urosstegic/">Uroš Stegić</a>.
 
 
