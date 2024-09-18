@@ -15,6 +15,7 @@
   <summary>Table of contents</summary>
   <ol>
     <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#siamese-networks">Siamese networks</a></li>
     <li><a href="#project-structure">Project Structure</a></li>
     <li><a href="#model-architecture">Model architecture</a></li>
     <li><a href="#results">Results</a></li>
