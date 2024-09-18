@@ -15,7 +15,7 @@
   <summary>Table of contents</summary>
   <ol>
     <li><a href="#introduction">Introduction</a></li>
-    <li><a href="#siamese-networks">Siamese networks</a></li>
+    <li><a href="#siamese-networks">Siamese Networks</a></li>
     <li><a href="#project-structure">Project Structure</a></li>
     <li><a href="#model-architecture">Model architecture</a></li>
     <li><a href="#results">Results</a></li>
@@ -41,6 +41,9 @@ Project structure is as follows:
   <li>training - with all .py files that are already in it</li>
 </ul>
 Download LaSOT dataset from <a href="https://onedrive.live.com/?authkey=%21AKDCa351cL3g44Q&id=83EEFE32EECC7F4B%2133234&cid=83EEFE32EECC7F4B">LaSOT</a>. In the code training and test set are seperated via different classes ImageLASOT_train, ImageLASOT_val, ImageLASOT_test. The main difference between these classes is in the value of the attribute <i>subclasses_indexes</i>. Each class of images has 20 subclasses, and you can play around with this to determine how much parameters are going to be for training, validation and test sets.
+
+<!-- Siamese Networks -->
+## <span id="siamese-networks"> Siamese Networks </span>
 
 <!-- Model arch -->
 ## <span id="model-architecture"> Model architecture </span>
