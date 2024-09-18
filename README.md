@@ -59,7 +59,7 @@ In this section you should provide instructions on how to use this repository to
 <!-- Project Structure -->
 ## <span id="references"> References </span>
 
-In this section you should provide instructions on how to use this repository to recreate your project locally.
+Our work was based on the <a href="https://arxiv.org/pdf/1606.09549">Fully-Convolutional Siamese Networks for Object Tracking</a>. 
 
 <!-- Authors -->
 ## Authors
