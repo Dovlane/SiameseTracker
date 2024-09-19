@@ -31,7 +31,7 @@ class IncompatibleImagenetStructure(IncompatibleFolderStructure):
         info = ("\n"
                 "The given root directory does not conform with the expected "
                 "folder structure. It should have the following structure:\n"
-                "home\n"
+                "data\n"
                 "├── airplane"
                 "├──── airplane-1\n"
                 "├          └── img\n"
