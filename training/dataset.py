@@ -22,6 +22,17 @@ from training.crops_train import crop_and_resize as crop_and_resize
 from training.labels import create_BCELogit_loss_label as BCELoss
 from torch.utils.data import DataLoader
 
+class RunningAverage():
+    def __init__(self):
+        self.steps = 0
+        self.total = 0
+
+    def update(self, val):
+        self.total += val
+        self.steps += 1
+
+    def __call__(self):
+        return self.total/float(self.steps)
 
 class IncompatibleFolderStructure(Exception):
     pass
