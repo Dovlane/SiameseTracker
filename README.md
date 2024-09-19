@@ -65,7 +65,7 @@ In this section you should provide instructions on how to use this repository to
 <!-- Project Structure -->
 ## <span id="references"> References </span>
 
-Our work was based on the <a href="https://arxiv.org/pdf/1606.09549">Fully-Convolutional Siamese Networks for Object Tracking</a>. 
+Our work was based on the <a href="https://arxiv.org/pdf/1606.09549">Fully-Convolutional Siamese Networks for Object Tracking</a>. Dataset class is nicely implemented in this <a href = "https://github.com/rafellerc/Pytorch-SiamFC">Pytorch-SiamFC</a>.
 
 <!-- Authors -->
 ## Authors
