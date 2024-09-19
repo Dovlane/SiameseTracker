@@ -42,7 +42,10 @@ Download LaSOT dataset from <a href="https://onedrive.live.com/?authkey=%21AKDCa
 <!-- Siamese Networks -->
 ## <span id="siamese-networks"> Siamese Networks</span>
 Siamese networks are convolutional networks trained on images. They are used to determine the measure of similarity between images, and based on this principle, they can be set up to track an object across frames in a video. There is a smaller image – the target, and a larger image – the sample, in which the target is searched. The target and the sample are chosen to be either similar or dissimilar. For pairs of dissimilar images, the goal is for the result to be a search map with the lowest possible probability, while for similar ones, it should be as high as possible. The next position of the target is identified based on the previous one and the pixels surrounding an area slightly wider than the bounding box where the target was found in the previous frame. The pixel from the search map with the highest score is taken as the center of the target in the next frame.
-
+<br/>
+<p align="center">
+  <img src="images/siamese_network.png" alt="siamese network - principle" width="600">
+</p>
 
 <!-- Model arch -->
 ## <span id="model-architecture"> Model architecture </span>
