@@ -4,10 +4,7 @@
   <a href="https://github.com/catiaspsilva/README-template">
     <img src="images/siamese-cat-isolated-on-transparent-background-ai-generated-png.png" alt="Logo" width="150" height="150">
   </a>
-
   <h3 align="center">Object tracking with Siamese networks</h3>
-
-
 
 
 <!-- TABLE OF CONTENTS -->
@@ -43,7 +40,9 @@ Project structure is as follows:
 Download LaSOT dataset from <a href="https://onedrive.live.com/?authkey=%21AKDCa351cL3g44Q&id=83EEFE32EECC7F4B%2133234&cid=83EEFE32EECC7F4B">LaSOT</a>. In the code training and test set are seperated via different classes ImageLASOT_train, ImageLASOT_val, ImageLASOT_test. The main difference between these classes is in the value of the attribute <i>subclasses_indexes</i>. Each class of images has 20 subclasses, and you can play around with this to determine how much parameters are going to be for training, validation and test sets.
 
 <!-- Siamese Networks -->
-## <span id="siamese-networks"> Siamese Networks </span>
+## <span id="siamese-networks"> Siamese Networks</span>
+Siamese networks are convolutional networks trained on images. They are used to determine the measure of similarity between images, and based on this principle, they can be set up to track an object across frames in a video. There is a smaller image – the target, and a larger image – the sample, in which the target is searched. The target and the sample are chosen to be either similar or dissimilar. For pairs of dissimilar images, the goal is for the result to be a search map with the lowest possible probability, while for similar ones, it should be as high as possible. The next position of the target is identified based on the previous one and the pixels surrounding an area slightly wider than the bounding box where the target was found in the previous frame. The pixel from the search map with the highest score is taken as the center of the target in the next frame.
+
 
 <!-- Model arch -->
 ## <span id="model-architecture"> Model architecture </span>
