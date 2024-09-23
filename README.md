@@ -49,13 +49,11 @@ Siamese networks are convolutional networks trained on images. They are used to 
 
 <!-- Model arch -->
 ## <span id="model-architecture"> Model architecture </span>
-
-In this section you should provide instructions on how to use this repository to recreate your project locally.
-
+The model is built around a simple convolutional neural network (CNN), implemented using PyTorch. Both the target frame and the search image are passed through the same (hence the name, Siamese network) CNN to extract embeddings of size 33x33 for each image. These embeddings represent the most important features of the images and are then used to compute the similarity between them. 
 <!-- Project Structure -->
 ## <span id="results"> Results </span>
 
-In this section you should provide instructions on how to use this repository to recreate your project locally.
+The loss is calculated using Binary Cross-Entropy Loss with logits between a predicted score map and ground truth labels, where each pixel is classified as positive or negative. The loss is weighted by a second label map that indicates whether each pixel is neutral (ignored) or should contribute to the loss calculation. For evaluation, the model uses center error metrics. It calculates the displacement between the estimated center of a target in the network's output and the expected center (ground-truth) in the search image, measured in pixels. It identifies the maximum response in the network's output, computes the distance from the center of the image, and scales this error by an upscale_factor to account for the difference in feature map and input image sizes.
 
 <!-- Project Structure -->
 ## <span id="challenges-and-future-work"> Challenges and future work </span>
