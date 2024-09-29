@@ -50,10 +50,14 @@ Siamese networks are convolutional networks trained on images. They are used to 
 <!-- Model arch -->
 ## <span id="model-architecture"> Model architecture </span>
 The model is built around a simple convolutional neural network (CNN), implemented using PyTorch. Both the target frame and the search image are passed through the same (hence the name, Siamese network) CNN to extract embeddings of size 33x33 for each image. These embeddings represent the most important features of the images and are then used to compute the similarity between them. 
+<br>We chose to start with the pre-trained model provided in the reference and then fine-tune it on our own dataset. The network used for the pre-trained model is defined in the **models.py** file.
+Since the training was done on a pre-trained network, which was initially trained on a different dataset, the first step was to verify whether a single image from the new dataset would overfit on the pre-existing model, and we successfully achieved this.
 <!-- Project Structure -->
 ## <span id="results"> Results </span>
 
-The loss is calculated using Binary Cross-Entropy Loss with logits between a predicted score map and ground truth labels, where each pixel is classified as positive or negative. The loss is weighted by a second label map that indicates whether each pixel is neutral (ignored) or should contribute to the loss calculation. For evaluation, the model uses center error metrics. It calculates the displacement between the estimated center of a target in the network's output and the expected center (ground-truth) in the search image, measured in pixels. It identifies the maximum response in the network's output, computes the distance from the center of the image, and scales this error by an upscale_factor to account for the difference in feature map and input image sizes.
+The loss is calculated using Binary Cross-Entropy Loss with logits between a predicted score map and ground truth labels, where each pixel is classified as positive or negative. The loss is weighted by a second label map that indicates whether each pixel is neutral (ignored) or should contribute to the loss calculation. <br>For evaluation, the model uses center error metrics. It calculates the displacement between the estimated center of a target in the network's output and the expected center (ground-truth) in the search image, measured in pixels. It identifies the maximum response in the network's output, computes the distance from the center of the image, and scales this error by an upscale_factor to account for the difference in feature map and input image sizes. <br>
+The same loss function and metrics were used in the implementation provided in the references.
+<br>
 
 <!-- Project Structure -->
 ## <span id="challenges-and-future-work"> Challenges and future work </span>
