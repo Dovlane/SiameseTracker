@@ -75,7 +75,9 @@ In our work, we have experimented with two different optimizers for training, Ad
 <!-- Project Structure -->
 ## <span id="challenges-and-future-work"> Challenges and future work </span>
 
-In this section you should provide instructions on how to use this repository to recreate your project locally.
+Despite the overall productivity of our stay at the seminar, which included a variety of tasks and engaging lectures, we faced challenges with time management during the project. Unexpectedly, approximately 80% of our time was spent on data preprocessing, as we utilized a different dataset than the one referenced in the implementation we were following. Additionally, our project was based on an implementation that was not entirely accurate, leading us to take a few logically flawed steps. Nevertheless, we believe that the time spent collaborating as a team significantly enriched our experience, resulting in valuable insights and learning throughout the seminar.
+
+Looking ahead, we aim to refine our current work to closely adhere to the proposed methodology outlined in the referenced paper. Furthermore, we plan to analyze the performance of various convolutional networks, with one of our future steps being the implementation of a scale-equivariant Siamese tracker.
 
 <!-- Project Structure -->
 ## <span id="references"> References </span>
