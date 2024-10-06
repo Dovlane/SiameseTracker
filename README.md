@@ -57,7 +57,18 @@ Since the training was done on a pre-trained network, which was initially traine
 
 The loss is calculated using Binary Cross-Entropy Loss with logits between a predicted score map and ground truth labels, where each pixel is classified as positive or negative. The loss is weighted by a second label map that indicates whether each pixel is neutral (ignored) or should contribute to the loss calculation. <br>For evaluation, the model uses center error metrics. It calculates the displacement between the estimated center of a target in the network's output and the expected center (ground-truth) in the search image, measured in pixels. It identifies the maximum response in the network's output, computes the distance from the center of the image, and scales this error by an upscale_factor to account for the difference in feature map and input image sizes. <br>
 The same loss function and metrics were used in the implementation provided in the references.
-<br>
+
+<p align="center">
+  <img src="images/adamloss.png" width="45%">
+  <img src="images/center_error_adam.png" width="45%">
+</p>
+
+<p align="center">
+  <img src="images/sgdloss.png" width="45%">
+  <img src="images/center_error_sgd.png" width="45%">
+</p>
+
+In our work, we have experimented with two different optimizers for training, Adam and SGD. The top two graphs display the results using the Adam optimizer, while the bottom two represent the Stochastic Gradient Descent (SGD) optimizer. For both optimizers, the training loss (blue line) consistently decreases over the epochs, indicating effective learning progress. However, the validation loss (green line) shows noticeable fluctuations, suggesting instability and potential overfitting in both cases. Similarly, the center error for both optimizers shows a steady reduction in training center error, but the validation results remain inconsistent. Although data augmentation was applied to mitigate overfitting, it did not prove particularly effective in this case.
 
 <!-- Project Structure -->
 ## <span id="challenges-and-future-work"> Challenges and future work </span>
@@ -67,7 +78,7 @@ In this section you should provide instructions on how to use this repository to
 <!-- Project Structure -->
 ## <span id="references"> References </span>
 
-Our work was based on the <a href="https://arxiv.org/pdf/1606.09549">Fully-Convolutional Siamese Networks for Object Tracking</a>. The model, losses, and metrics were adopted from the project <a href = "https://github.com/rafellerc/Pytorch-SiamFC">Pytorch-SiamFC</a>.
+Our work was based on the <a href="https://arxiv.org/pdf/1606.09549">Fully-Convolutional Siamese Networks for Object Tracking</a>. The model, losses, optimizers, and metrics were adopted from the project <a href = "https://github.com/rafellerc/Pytorch-SiamFC">Pytorch-SiamFC</a>.
 
 <!-- Authors -->
 ## Authors
